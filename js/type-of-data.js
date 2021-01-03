@@ -26,12 +26,15 @@ console.log(arr1);
 //2.第二种定义数组的方式
 var arr2 = [11, 22, 33];
 console.log(arr2);
-// 元组类型（tuple）  属于数组的一种
-var arr3 = [11, 22, 33];
+// 3.第三种
+var arr3 = ['123', 4156, true];
 console.log(arr3);
-//元祖类型 只能有两个值且类型为设置的类型
-var arr4 = [123, 'this is ts'];
+// 元组类型（tuple）  属于数组的一种
+var arr4 = [11, 22, 33];
 console.log(arr4);
+//元祖类型 已知元素数量和类型的数组
+var arr5 = [123, 'this is ts', '1'];
+console.log(arr5);
 // 枚举类型（enum）
 // 尽量用自然语言中含义清楚的单词来表示数据的每一个值，这种方法成为枚举方法，这种方法定义的类型称为枚举类型
 // enum 枚举名{ 
@@ -78,3 +81,45 @@ var Err;
 ;
 var e = Err.success;
 console.log(e);
+// 任意类型（any）
+// 就像名字那样不固定类型
+var zxl = 123;
+zxl = 'str';
+zxl = true;
+console.log(zxl);
+// 例如做dom操作的时候any就很实用
+// var dom:any=document.getElementById('id');
+// dom.style.color='red';
+// null和undefined
+// var zzz:number;
+// console.log(zzz) 报错
+// var zzz:undefined; ok
+// 可以设置多个类型
+// var zzz:undefined | number; ok
+// var zzz:null;
+// zzz=null  赋值其他的就不行只能null表示空
+// void类型
+// ts中表示没有任何类型，一般用于定义方法表示没有返回值
+function run() {
+    console.log('run');
+}
+run();
+// never类型：代表不会出现的值
+// 这意味着never类型的变量只能被never类型赋值。
+var q;
+q = undefined;
+var qq;
+qq = null;
+var qqq;
+qqq = (function () {
+    throw new Error('error');
+})();
+// Object 表示非原始类型，也就是除了number、string、boolean、symbol、null或undefined之外的类型 方便使用Object.create这样的API
+// 类型断言  告诉编译器，我确定他是这个类型
+// 两种写法  在TypeScript里使用JSX时，只有 as语法断言是被允许的。
+// 尖括号写法
+var someValue = "this is a string";
+var strLength = someValue.length;
+// as语法
+var someValue2 = "this is a string";
+var strLength2 = someValue2.length;
