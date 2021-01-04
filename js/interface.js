@@ -15,9 +15,12 @@ var arr = ['aaa', 'bbb'];
 var obj = {
     name: "xiu"
 };
-var Dog = /** @class */ (function () {
-    function Dog(name) {
+var Fish = /** @class */ (function () {
+    function Fish(name) {
+        this.name = name;
     }
-    Dog.prototype.eat = function () { };
-    return Dog;
+    Fish.prototype.chi = function (str) {
+        console.log(str);
+    };
+    return Fish;
 }());
