@@ -71,3 +71,15 @@ class Fish implements Animal2 {
         console.log(str);
     }
 }
+
+class Aa extends Fish implements Animal2,UserArr {
+    name:string
+    constructor(name:string){
+        super(name)
+        this.name=name
+    }
+    [index: number]: string;
+    chi(str:string){
+        console.log(str);
+    }
+}

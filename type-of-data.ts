@@ -32,9 +32,6 @@ console.log(arr2)
 // 3.第三种
 var arr3:any[]=['123',4156,true]
 console.log(arr3)
-// 元组类型（tuple）  属于数组的一种
-var arr4:Array<number>=[11,22,33];
-console.log(arr4)
 //元祖类型 已知元素数量和类型的数组
 let arr5:[number,string,string]=[123,'this is ts','1'];
 console.log(arr5);
