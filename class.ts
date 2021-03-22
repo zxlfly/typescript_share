@@ -174,7 +174,7 @@ class Dog extends Animal{
         super(name);
     }
     eat() {
-       console.log(this.name+'吃屎');
+       console.log(this.name+'吃骨头');
     }
 }
 var d= new Dog('狗')
