@@ -45,7 +45,7 @@ console.log(x);
 
 //this和箭头函数
 // js里。this的值在函数调用的时候才会指定。
-// 箭头函数在定义的时候就会绑定上下文，而不是调用时的值。
+// 箭头函数是根据外层作用域来决定this的，会继承外层函数调用的this绑定。
 // 可以提供一个显式的 this参数。 this参数是个假的参数，它出现在参数列表的最前面
 var foo = (x:number)=>10 + x 
 function f(this: void) {

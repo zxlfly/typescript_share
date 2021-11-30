@@ -55,6 +55,19 @@ interface UserObj{
 var obj:UserObj={
     name:"xiu"
 }
+//任意属性
+// interface Person {
+//     name: string;
+//     age?: number;
+//     [propName: string]: any;
+// }
+
+// let tom: Person = {
+//     name: 'Tom',
+//     gender: 'male'
+// };
+//一旦定义了任意属性，那么确定属性和可选属性的类型都必须是它的类型的子集
+// 上面例子中age是number，不是 string 的子属性
 
 // 类类型接口：对类的约束，和抽象类有点相似
 // 默认情况下，ts文件下的代码在全局命名空间中，也就是在不同文件命名也是不能重复的。空间和模块化中会讲到如何解决。
