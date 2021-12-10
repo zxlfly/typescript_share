@@ -31,6 +31,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -110,8 +112,8 @@ var __extends = (this && this.__extends) || (function () {
 // ts类的修饰符
 /**
  * public：公有的----在当前类里面、子类、类外面都可以访问
- * protected：保护类型----在当前类里面、子类里面可以访问
- * private：私有----在当前类里面可以访问
+ * protected/prəˈtektəd/：保护类型----在当前类里面、子类里面可以访问
+ * private/ˈprīvit/：私有----在当前类里面可以访问
  * readonly：只读----必须在声明时或者构造函数中初始化。声明和初始化可以合成一步在构造函数中完成
  */
 var Person = /** @class */ (function () {
@@ -178,7 +180,7 @@ var Dog = /** @class */ (function (_super) {
         return _super.call(this, name) || this;
     }
     Dog.prototype.eat = function () {
-        console.log(this.name + '吃屎');
+        console.log(this.name + '吃骨头');
     };
     return Dog;
 }(Animal));
