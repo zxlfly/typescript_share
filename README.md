@@ -24,7 +24,61 @@
 - never类型
 配置项``strictNullChecks``开启时，会显式的检查在使用时有可能为null的值。建议开启。  
 ``!``为非空断言。
-
+## 类型的窄化
+ts的类型是可以组合使用的。这样就需要在程序中判断当前值类型进行区分操作。  
+类型窄化根据类型守卫在子语句块重新定义了具体的新类型。  
+例如使用``typeof``判断，需要注意``null``。
+### 真值窄化
+可以更好的处理``null/undefind/0``等值
+### 相等性窄化
+通过```===,!==,==,!=``都可以来窄化类型。
+```
+function p(strs : string | string[] | null){
+  if(strs !== null){
+    if(typeof strs === 'object'){
+      // string[]
+    }else if(typeof strs === 'string'){
+      // string
+    }
+  }
+}
+```
+注意：``!=null``和``!=undefined``如果值是null或者undefined都为true。
+### ``in``窄化
+```
+type Fish = {swim:()=>void}
+type Bird = {fly:()=>void}
+function move(animal:Fish|Bird){
+  if('swim' in animal){
+    return animal.swim()
+  }
+  return animal.fly()
+}
+```
+这里不使用``instanceof``是因为type没有运行时。
+### ``instanceof``窄化
+```
+function log(x:Date | string){
+  if(x instanceof Date){
+    // Date
+  }else{
+    // string
+  }
+}
+```
+### 组合类型推导
+有时候ts会推导出组合类型。例如声明变量赋值时可能存在多种类型时。
+### ts如何实现窄化的
+首先在语法分析阶段，编译器会识别出类型卫兵表达式。包括一些隐性的类型卫兵，比如真值表达式、instanceof等等。  
+那么在语义分析的时候，遇到控制流关键字``if/whild``等，就会看看是否有需要分析的窄化操作。
+- 第一步找到卫兵表达式
+  - 例如``typeof``
+- 第二步根据返回值分别做窄化
+- 窄化的本质是重新定义类型
+## 类型断言
+ts中有两个断言操作符，``Assertion``操作符``as``，和``Predicate``操作符``is``  
+``Assertion``表示某个东西是什么  
+``Predicate``是一个卫兵
 # 函数（function.ts）
 - 函数的定义
 - 可选参数
@@ -67,7 +121,18 @@ let box:Box = {w:10,h:10,scale:100}
 - 泛型函数
 - 泛型类
 - 泛型接口
-
+共有特征的一种抽象，允许将类型作为其他类型参数，从而分离不同关注点的实现。  
+对于ts来说所有的key都是静态的
+```
+function getVal<T,K extends keyof T>(obj:T,key:K){
+  return obj[key]
+}
+let x = {
+  a:1,
+  b:2
+}
+getVal(x,'a')
+```
 # 命名空间、模块化（namespace-modules.ts）
 **命名空间**：在代码量较大的情况下，为了避免命名冲突，可以将相似功能的函数、类、接口等放置到命名空间中，将代码包裹起来。可以很好的组织代码，避免冲突。
 **模块**：侧重代码的复用性，一个模块里可能会有多个命名空间。
