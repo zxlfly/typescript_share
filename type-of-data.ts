@@ -121,8 +121,5 @@ function map<Input,Output>(
   const parsed = map(['1','2'],(n)=>parseInt(n))
 
 
-function combine<T>(arr1:T[],arr2:T[]):T[]{
-    return arr1.concat(arr2)
-}
-const res = combine<string | number>([1,2,3],['1'])
-console.log(res);
+
+

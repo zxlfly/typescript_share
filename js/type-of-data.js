@@ -124,8 +124,3 @@ function map(arr, func) {
     return arr.map(func);
 }
 var parsed = map(['1', '2'], function (n) { return parseInt(n); });
-function combine(arr1, arr2) {
-    return arr1.concat(arr2);
-}
-var res = combine([1, 2, 3], ['1']);
-console.log(res);

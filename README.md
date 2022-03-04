@@ -258,6 +258,311 @@ let x = {
 }
 getVal(x,'a')
 ```
+# 类型计算
+### keyof
+提取key
+```
+type M = { [k:string]:boolean }
+type A = keyof M
+// type A = string | number
+```
+### typeof
+```
+console.log(typeof '100')
+// string
+let sz = '1'
+let cz:typeof sz
+// cz: string
+```
+### Partial Type
+例如一个函数参数某个参数必须满足一个接口，这个接口定义了两个必传参数，但是在调用的时候只想传其中一个参数，这是可以使用``Partial<Type>``.相当于所有参数可选。  
+实现：
+```
+type Partial<T> = {
+    [P in keyof T]? : T[P]
+}
+```
+### Required
+作用和``Partial``相反，用法``Required<Type>``  
+实现：
+```
+type Required<T> = {
+    [P in keyof T]-? : T[P]
+}
+```
+### Readonly
+作用如名，用法``Readonly<Type>``  
+实现：
+```
+type Readonly<T> = {
+    readonly[P in keyof T]: T[P]
+}
+```
+### Record
+``Record<CatName,CatInfo>``,``CatName``表示key，``CatInfo``表示值。
+```
+interface CatInfo {
+    age: number;
+    breed: string;
+}
+type CatName = "miffy" | "boris" |"mordred" ;
+const cats: Record<CatName,CatInfo> = {
+    miffy: { age: 10,breed: "persian" },
+    boris: { age: 5, breed: "Maine coon" },
+    mordred: { age: 16, breed: "British Shorthair" },
+};
+cats.boris;
+console.log(cats.boris);
+```
+实现：
+```
+type Record<K extends keyof any, T> = {
+    [P in K]:T
+}
+```
+### Pick
+用于取出需要的字段
+```
+interface Todo{
+    title:string;
+    des:string;
+    status:boolean
+}
+type TodoPreview = Pick<Todo,'title'|'des'>
+```
+实现：
+```
+type Pick<T,K extends keyof T> = {
+    [P in K]:T[P]
+}
+```
+### Exclude
+排除
+```
+type T0 = Exclude<'a'|'b'|'c','a'>
+// type T0 = "b" | "c"
+type T1 = Exclude<'a'|'b'|'c','a'|'b'>
+// type T1 = "c"
+type T2 = Exclude<'a'|'b'|(()=>void),Function>
+// type T2 = "a" | "b"
+```
+实现：
+```
+type Exclude<T,U > = T extends U ? never : T
+```
+### Omit
+省略
+```
+interface Todo {
+    title:string;
+    des:string;
+    status:boolean;
+}
+type TodoPreview = Omit<Todo,'des'|'title'>
+// type TodoPreview = {
+//     status: boolean;
+// }
+```
+实现：
+```
+type Omit<T,K extends keyof any> = Pick<T,Exclude<keyof T,K>>
+```
+### Extract
+取出
+```
+type T0 = Extract<'a'|'b'|'c','a'|'d'>
+// type T0 = 'a'
+type T2 = Extract<'a'|'b'|(()=>void),Function>
+// type T2 = () => void
+```
+实现：
+```
+type Extract<T,U> = T extends U?T:never
+```
+### NonNullable
+```
+type T0 = NonNullable<string|number|undefined|null
+|never>
+```
+实现：
+```
+type NonNullable<T> = T extends null | undefined ? never : T;
+```
+### Parameters
+提取函数的参数
+```
+declare function f1(arg:{a:number;b:string}):void
+type T0 = Parameters<()=>string>
+// type T0 = []
+type T1 = Parameters<(s:string)=>string>
+// type T1 = [s: string]
+type T2 = Parameters<<T>(arg:T)=>T>
+// type T2 = [arg: unknown]
+type T3 = Parameters<typeof f1>
+// type T3 = [arg: {
+//     a: number;
+//     b: string;
+// }]
+```
+实现：
+```
+type Parameters<T extends ( ...args: any) =>any> = T extends( ...args: infer P)=> any ? P : never;
+```
+### ConstructorParameters
+提取构造函数的参数
+```
+type T0 = ConstructorParameters<ErrorConstructor>;
+// type T0 = [message? : string]
+type T1 = ConstructorParameters<FunctionConstructor>;
+//type T1 = string[]
+type T2 = ConstructorParameters<RegExpConstructor>;
+//type T2 = [patterstring | RegExp, flags? : string]
+type T3 = ConstructorParameters<any>;
+//type T3 = unknown[]
+```
+实现：
+```
+type ConstructorParameters<T extends abstract new ( ...args: any)=>any> = T extends abstract new ( ...args: infer P) => any ? P :never;
+```
+### ReturnType
+提取函数返回值类型
+```
+declare function f1(): { a: number; b: string };
+type T0 = ReturnType<( ) => string>;
+//type T0 = string
+type T1 = ReturnType<(s: string) => void>;
+//type T1 = void
+type T2 = ReturnType<<T>()=>T>;
+//type T2 = unknown
+type T3 = ReturnType<<T extends u,u extends number[]>() =>T>;
+//type T3 = numbe
+type T4 = ReturnType<typeof f1>;
+// type T4 = { a: number;b: string; }
+type T5 = ReturnType<any>;
+// type T5 = any
+```
+实现：
+```
+type ReturnType<T extends (...args: any) =>any> = T extends( ...args: any) => infer R ? R : any;
+```
+### InstanceType
+获取构造函数的实例类型，如果是多个就以 联合类型 的方式返回
+```
+class C {x = 0;y = 0;}
+type T0 = InstanceType<typeof C>;
+// type T0 = C
+//   new Promise<C>
+type T1 = InstanceType<any>;
+// type T1 = any
+type T2 = InstanceType<never>;
+// type T2 = never
+type T3 = InstanceType<string>;
+// 类型“string”不满足约束“abstract new (...args: any) => any”。
+// type T3 = any
+```
+实现：
+```
+type InstanceType<T extends abstract new ( ...args: any) => any>= T extends abstract new ( ...args: any) => infer R ? R : any;
+```
+### ThisParameterType
+提取函数类型的this参数的类型，如果函数类型没有参数，则为unknown
+```
+function a(this:number){
+    return this.toString(16)
+}
+function n(v : ThisParameterType<typeof a>){
+    return a.apply(v)
+}
+```
+实现：
+```
+type ThisParameterType<T> = T extends (this: infer u,...args :any[]) =>any ? U : unknown;
+```
+### OmitThisParameter
+移除函数中的 this 数据类型
+```
+interface Foo {
+    x: number
+};
+type Fn = (this: Foo) => void
+type NonReturnFn = OmitThisParameter<Fn>; 
+// type NonReturnFn = () => void
+
+function toHex(this: Number) {
+  return this.toString(16);
+}
+ 
+const fiveToHex: OmitThisParameter<typeof toHex> = toHex.bind(5);
+ 
+console.log(fiveToHex());
+```
+实现：
+```
+type OmitThisParameter<T> = unknown extends ThisParameterType<T>? T : T extends (...args: infer A) => infer R ? (...args: A) =>R : T;
+```
+### ThisType<Type>
+可以指定this类型  
+noImplicitThis必须启用
+```
+type ObjectDescriptor<D, M> = {
+  data?: D;
+  methods?: M & ThisType<D & M>; // Type of 'this' in methods is D & M
+};
+ 
+function makeObject<D, M>(desc: ObjectDescriptor<D, M>): D & M {
+  let data: object = desc.data || {};
+  let methods: object = desc.methods || {};
+  return { ...data, ...methods } as D & M;
+}
+ 
+let obj = makeObject({
+  data: { x: 0, y: 0 },
+  methods: {
+    moveBy(dx: number, dy: number) {
+      this.x += dx; // Strongly typed this
+      this.y += dy; // Strongly typed this
+    },
+  },
+});
+ 
+obj.x = 10;
+obj.y = 20;
+obj.moveBy(5, 5);
+```
+实现：
+```
+interface ThisType<T> { }
+```
+### 内在字符串操作类型
+- ``Uppercase<StringType>``
+- ``Lowercase<StringType>``
+- ``Capitalize<StringType>``
+- ``Uncapitalize<StringType>``
+```
+type Greeting = "Hello, world"
+type ShoutyGreeting = Uppercase<Greeting>
+//type ShoutyGreeting = "HELLO, WORLD"
+ 
+type ASCIICacheKey<Str extends string> = `ID-${Uppercase<Str>}`
+type MainID = ASCIICacheKey<"my_app">
+//type MainID = "ID-MY_APP"
+
+type Greeting = "Hello, world"
+type QuietGreeting = Lowercase<Greeting>
+//type QuietGreeting = "hello, world"
+ 
+type ASCIICacheKey<Str extends string> = `id-${Lowercase<Str>}`
+type MainID = ASCIICacheKey<"MY_APP">
+//type MainID = "id-my_app"
+
+type LowercaseGreeting = "hello, world";
+type Greeting = Capitalize<LowercaseGreeting>;
+// type Greeting = "Hello, world"
+
+type UppercaseGreeting = "HELLO WORLD";
+type UncomfortableGreeting = Uncapitalize<UppercaseGreeting>;
+//type UncomfortableGreeting = "hELLO WORLD"
+```
 # 命名空间、模块化（namespace-modules.ts）
 **命名空间**：在代码量较大的情况下，为了避免命名冲突，可以将相似功能的函数、类、接口等放置到命名空间中，将代码包裹起来。可以很好的组织代码，避免冲突。
 **模块**：侧重代码的复用性，一个模块里可能会有多个命名空间。
