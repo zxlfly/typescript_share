@@ -287,7 +287,7 @@ if (fso.isFile()) {
 - 类类型接口
 - 接口扩展
 
-**接口可以继承（extends），type可以组合（&），使用时可以根据这一点选择使用谁。 ** 
+**接口可以继承（extends），type可以组合（&），使用时可以根据这一点选择使用谁。 **   
 接口可以声明合并（Declaration Merging）,可以看做是向接口添加成员。
 ```
 interfacr Box {
