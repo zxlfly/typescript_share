@@ -221,14 +221,72 @@ console.log(res);
   - 静态属性
   - 静态方法
   - 抽象类
-
+继承会加重耦合，组合和泛型不会。
+### 成员可见域
+- public
+  - 公有的----在当前类里面、子类、类外面都可以访问
+- protected
+  - 保护类型----在当前类里面、子类里面可以访问
+- private
+  - 私有----在当前类里面可以访问
+### 静态成员 static
+静态成员和类的实例没有关系，静态成员、静态方法都绑定在类型本身上。  
+金泰成员也会继承。
+### 抽象类不能实例化，只能继承
+### 索引器
+```
+class Arr<T> {
+  [i : number] : T
+}
+const a = new Arr<number>()
+a[10] = 100
+console.log(a[10])
+// 100
+```
+### 类型守卫
+```
+class FilesystemObject {
+    isFile(): this is FileRep {
+       return this instanceof FileRep;
+    }
+    isDirectory( ) : this is Directory {
+        return this instanceof Directory
+    }
+    isNetworked( ) : this is Networked & this {
+        return this.networked;
+    }
+    constructor(public path: string,private networked:boolean){}
+}
+class FileRep extends FilesystemObject {
+    constructor(path: string,public content: string) {
+        super(path,false);
+    }
+}
+class Directory extends FilesystemObject {
+    children: FilesystemObject[] = [];
+ }
+interface Networked {
+    host: string;
+}
+const fso: FilesystemObject = new FileRep( "foo/bar.txt","foo")
+if (fso.isFile()) {
+    fso.content;
+    // const fso: FileRep
+}else if (fso.isDirectory()) {
+    fso.children;
+    //const fso: Directory
+}else if (fso.isNetworked()) {
+    fso.host;
+    //const fso: Networked & Filesystemobject
+}
+```
 # 接口（interface.ts）
 - 属性接口
 - 函数类型接口
 - 可索引接口
 - 类类型接口
 - 接口扩展
-接口可以继承（extends），type可以组合（&），使用时可以根据这一点选择使用谁。  
+**接口可以继承（extends），type可以组合（&），使用时可以根据这一点选择使用谁。 ** 
 接口可以声明合并（Declaration Merging）,可以看做是向接口添加成员。
 ```
 interfacr Box {
@@ -565,7 +623,9 @@ type UncomfortableGreeting = Uncapitalize<UppercaseGreeting>;
 ```
 # 命名空间、模块化（namespace-modules.ts）
 **命名空间**：在代码量较大的情况下，为了避免命名冲突，可以将相似功能的函数、类、接口等放置到命名空间中，将代码包裹起来。可以很好的组织代码，避免冲突。
-**模块**：侧重代码的复用性，一个模块里可能会有多个命名空间。
+**模块**：侧重代码的复用性，一个模块里可能会有多个命名空间。  
+模块是一个程序包，包内的成员（函数、变量、类型)仅仅在包内可见，包外想要方位这些成员除非模块自己主动声明向包外提供。例如用import/export语法。
+
 
 # 装饰器
 装饰器是一项实验性特性，在未来的版本中可能会发生改变。配置文件experimentalDecorators设置为true。
