@@ -79,6 +79,74 @@ function log(x:Date | string){
 ts中有两个断言操作符，``Assertion``操作符``as``，和``Predicate``操作符``is``  
 ``Assertion``表示某个东西是什么  
 ``Predicate``是一个卫兵
+## infer和强大的类型计算体系
+```
+// 基本计算能力
+type Point = {x :number,y:number}
+type Product = {res : number}
+// 联合
+type Z = Point | Product
+type Z2 = Point & Product
+// 只要在Point和Product内存在的值都可以
+const a:Z = {res:10,x:1,y:10}
+const a2:Z2 = {res:10,x:1,y:10}
+// never  因为这是不可能的
+type A = string & number
+
+//会合并
+interface A {
+  foo():void;
+}
+interface A {
+  bar():void;
+}
+```
+### 更复杂的情况
+例如一个函数接受一个不限层级的数组，返回里面的值，即展开数组。
+```
+// 一层
+type Flatterned<T> = T extends Array<infer V> ? V : T
+type D = Flatterned<Array<number>>
+```
+```
+// 递归解决多层
+type Flatterned<T> = T extends Array<infer V> ? Flatterned<V> : T
+type D = Flatterned<Array<Array<number>>>
+```
+基本实现
+```
+type Flatterned<T> = T extends Array<infer V> ? Flatterned<V> : T
+type D = Flatterned<Array<Array<number>>>
+
+function flattern<T extends Array<any>>(arr:T):Array<Flatterned<T>>{
+    return (new Array<Flatterned<T>>()).concat(
+        ...arr.map(x=>Array.isArray(x)?flattern(x):x)
+    )
+}
+flattern([1,2,3,[5,6,[8]]])
+```
+去掉any
+```
+type Atom = string | boolean | number 
+type Nested<T> = Array<(T | (T | T[])[])>
+// type Nested = Array<(Atom | Nested)>
+function flattern<T extends Atom>(arr:Nested<Atom>):Atom[]{
+    return (new Array<Atom>()).concat(
+        ...arr.map(x=>Array.isArray(x)?flattern(x):x)
+    )
+}
+flattern([1,2,3,[5,6,[8]]])
+```
+将promise数组拆成string[]
+```
+type Unwrap<T> = T extends Promise<infer U> ? Unwrap<U>
+:T extends Array<infer V> ? 
+    UnwrapArray<T>:
+    T
+type UnwrapArray<T> = T extends Array<infer U> ? { [P in keyof T] :Unwrap<T[P]> } : T
+
+type TO = Unwrap<Promise<Promise<string>>[]>
+```
 # 函数（function.ts）
 - 函数的定义
 - 可选参数
@@ -88,6 +156,62 @@ ts中有两个断言操作符，``Assertion``操作符``as``，和``Predicate``�
 - 函数重载
 - 类型推断
 contexture typing 根据上下文猜测匿名函数参数类型
+## 参数是构造函数且限制类型
+```
+type SomeConstructor<T> = {
+    // 这个new 代表这里有构造函数
+    new (s:string):T
+  }
+  function fnn<T>(ctor :SomeConstructor<T>,n:string){
+    return new ctor(n)
+  }
+  const arr = fnn<Array<string>>(Array,'100')
+  console.log(arr);
+```
+## 泛型函数
+```
+function firstEle<Type>(arr:Type[]):Type{
+  return arr[0]
+}
+```
+## 关于推导
+```
+// map: a => b
+function map<Input,Output>(
+  arr:Input[],
+  func:(arg:Input)=>Output
+  ):Output[]{
+    return arr.map(func)
+}
+// 泛型特化 帮助推导使用之后的类型，增强约束
+const parsed = map(['1','2'],(n)=>parseInt(n))
+```
+## 泛型约束
+也可以多传入一个构造函数，else里面return new ctor。  
+不要加到extends的对象里面，不然就可以new obj，但是obj是构造的实例。
+```
+function n<T extends {length : number}>(
+    obj:T,
+    min:number
+):T{
+    if(obj.length>=min){
+        return obj
+    }else{
+        return obj.constructor(min)
+    }
+}
+n(new Array<string>(100),1000)
+```
+### 手动指定类型
+如果不手动指定就会报错。
+```
+function combine<T>(arr1:T[],arr2:T[]):T[]{
+    return arr1.concat(arr2)
+}
+const res = combine<string | number>([1,2,3],['1'])
+console.log(res);
+
+```
 # 类（class.ts）
 - es5的类
 - ts类
@@ -122,6 +246,7 @@ let box:Box = {w:10,h:10,scale:100}
 - 泛型类
 - 泛型接口
 共有特征的一种抽象，允许将类型作为其他类型参数，从而分离不同关注点的实现。  
+泛型可以帮助我们让类型检查更加严格智能。  
 对于ts来说所有的key都是静态的
 ```
 function getVal<T,K extends keyof T>(obj:T,key:K){

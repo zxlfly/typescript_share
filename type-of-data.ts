@@ -112,4 +112,17 @@ let strLength: number = (<string>someValue).length;
 // as语法
 let someValue2: any = "this is a string";
 let strLength2: number = (someValue2 as string).length;
+function map<Input,Output>(
+    arr:Input[],
+    func:(arg:Input)=>Output
+    ):Output[]{
+      return arr.map(func)
+  }
+  const parsed = map(['1','2'],(n)=>parseInt(n))
 
+
+function combine<T>(arr1:T[],arr2:T[]):T[]{
+    return arr1.concat(arr2)
+}
+const res = combine<string | number>([1,2,3],['1'])
+console.log(res);
