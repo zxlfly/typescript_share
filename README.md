@@ -154,7 +154,7 @@ type TO = Unwrap<Promise<Promise<string>>[]>
 - 剩余参数
 - 箭头函数
 - 函数重载
-- 类型推断
+- 类型推断  
 contexture typing 根据上下文猜测匿名函数参数类型
 ## 参数是构造函数且限制类型
 ```
